@@ -1,0 +1,651 @@
+﻿@model gin.ViewModel.AirCompHViewModel
+
+@{
+    ViewData["Title"] = "AirCompList";
+}
+@{
+    string fName = "";
+    switch (@ViewBag.factory)
+    {
+        case "KY-T1HIST":
+            fName = "觀音廠";
+            break;
+        case "BL-T1HIST":
+            fName = "八里廠";
+            break;
+        case "QX-T1HIST":
+            fName = "全興廠";
+            break;
+        case "ZB-T1HIST":
+            fName = "彰濱廠";
+            break;
+        case "KH-PCC-LH":
+            fName = "高雄廠";
+            break;
+        case "LD-T1HIST":
+            fName = "龍德廠";
+            break;
+        case "LZ-T1HIST":
+            fName = "利澤廠";
+            break;
+        case "HL-T1HIST":
+            fName = "花蓮廠";
+            break;
+    }
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card w-auto mt-3">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <label>@fName&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                        <button id="leftdate" style="background:transparent; border-width:0px; outline:none;"><i class="fas fa-caret-left"></i></button>
+                        <input id="day" type="date" value="@ViewBag.day" />
+                        <button id="rightdate" style="background:transparent; border-width:0px; outline:none;"><i class="fas fa-caret-right"></i></button>
+                        <button id="btn_excel" style="height:5px; background:transparent; border-width:0px; outline:none;"><img src="~/dist/img/excel.png" /></button>
+                        <label>&nbsp;&nbsp;空壓機/日管理 :</label>
+                        <select id="millId">
+                            @{
+                                var millId = @ViewBag.air;
+                                var list = @ViewBag.firstM;
+                            }
+                            @foreach (var x in millId)
+                            {
+                                if (x == list)
+                                {
+                                    <option value="@x" selected>@x</option>
+                                }
+                                else
+                                {
+                                    <option value="@x">@x</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col" style="text-align:end">
+                        @{
+                            var m = list.Replace("#", "%23");
+                            var d = @ViewBag.newDay;
+                        }
+                        <a href="/AirComp/AirCompMonList?factory=@ViewBag.factory&day=@d&m=@m">空壓機/月管理</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="linChar" style="height:300px"></canvas>
+            </div>
+        </div>
+        <div class="card w-auto">
+            <div class="card-header">
+                <div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="myTable" class="table table-striped table-bordered table-hover text-center">
+                    <thead>
+                        <tr>
+                            <th>
+                                日期
+                            </th>
+                            <th>
+                                比功率
+                            </th>
+                            <th>
+                                <input type="checkbox" class="check" value="AirConsumption" /><br />
+                                空氣用量M3/Min
+                            </th>
+                            <th>
+                                <input type="checkbox" class="check" value="PowerC" /><br />
+                                用電量
+                            </th>
+                            <th id='air1'>
+                                <input type="checkbox" class="check" value="PowerC01" /><br />
+                                #1用電量
+                            </th>
+                            <th id='air1'>
+                                #1 KWH(時)
+                            </th>
+                            <th id='air1'>
+                                <input type="checkbox" class="check" value="WorkTime01" /><br />
+                                #1 運轉(分)
+                            </th>
+                            <th id="air2">
+                                <input type="checkbox" class="check" value="PowerC02" /><br />
+                                #2 用電量
+                            </th>
+                            <th id="air2">
+                                #2 KWH(時)
+                            </th>
+                            <th id="air2">
+                                <input type="checkbox" class="check" value="WorkTime02" /><br />
+                                #2 運轉(分)
+                            </th>
+                            <th id="air3">
+                                <input type="checkbox" class="check" value="PowerC03" /><br />
+                                #3 用電量
+                            </th>
+                            <th id="air3">
+                                #3 KWH(時)
+                            </th>
+                            <th id="air3">
+                                <input type="checkbox" class="check" value="WorkTime03" /><br />
+                                #3 運轉(分)
+                            </th>
+                            <th id="air4">
+                                <input type="checkbox" class="check" value="PowerC04" /><br />
+                                #4 用電量
+                            </th>
+                            <th id="air4">
+                                #4 KWH(時)
+                            </th>
+                            <th id="air4">
+                                <input type="checkbox" class="check" value="WorkTime04" /><br />
+                                #4 運轉(分)
+                            </th>
+                            <th id="air5">
+                                <input type="checkbox" class="check" value="PowerC05" /><br />
+                                #5 用電量
+                            </th>
+                            <th id="air5">
+                                #5 KWH(時)
+                            </th>
+                            <th id="air5">
+                                <input type="checkbox" class="check" value="WorkTime05" /><br />
+                                #5 運轉(分)
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.airCompH)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Dtime)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SpecificPower)
+
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AirConsumption)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PowerC)
+                                </td>
+                                <td id='air1'>
+                                    @Html.DisplayFor(modelItem => item.PowerC01)
+                                </td>
+                                <td id='air1'>
+                                    @Html.DisplayFor(modelItem => item.PowerCh01)
+                                </td>
+                                <td id='air1'>
+                                    @{
+                                        int wM1 = Convert.ToInt32(@item.WorkTime01) / 60;
+                                    }
+                                    @wM1
+                                </td>
+                                <td id="air2">
+                                    @Html.DisplayFor(modelItem => item.PowerC02)
+                                </td>
+                                <td id="air2">
+                                    @Html.DisplayFor(modelItem => item.PowerCh02)
+                                </td>
+                                <td id="air2">
+                                    @{
+                                        int wM2 = Convert.ToInt32(@item.WorkTime02) / 60;
+                                    }
+                                    @wM2
+                                </td>
+                                <td id="air3">
+                                    @Html.DisplayFor(modelItem => item.PowerC03)
+                                </td>
+                                <td id="air3">
+                                    @Html.DisplayFor(modelItem => item.PowerCh03)
+                                </td>
+                                <td id="air3">
+                                    @{
+                                        int wM3 = Convert.ToInt32(@item.WorkTime03) / 60;
+                                    }
+                                    @wM3
+                                </td>
+                                <td id="air4">
+                                    @Html.DisplayFor(modelItem => item.PowerC04)
+                                </td>
+                                <td id="air4">
+                                    @Html.DisplayFor(modelItem => item.PowerCh04)
+                                </td>
+                                <td id="air4">
+                                    @{
+                                        int wM4 = Convert.ToInt32(@item.WorkTime04) / 60;
+                                    }
+                                    @wM4
+                                </td>
+                                <td id="air5">
+                                    @Html.DisplayFor(modelItem => item.PowerC05)
+                                </td>
+                                <td id="air5">
+                                    @Html.DisplayFor(modelItem => item.PowerCh05)
+                                </td>
+                                <td id="air5">
+                                    @{
+                                        int wM5 = Convert.ToInt32(@item.WorkTime05) / 60;
+                                    }
+                                    @wM5
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/chart.js/chart.min.js"></script>
+<script src="~/lib/chart.js/chartjs-plugin-annotation.js"></script>
+<script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+<link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+
+@section Scripts
+    {
+    <script>
+        var factory = "@ViewBag.factory";
+        $(function () {
+            const fact = "@ViewBag.factory";
+            const m = "@ViewBag.firstM";
+            if (fact == "KY-T1HIST") {
+                if (m == "#0") {
+                    $("[id='air5']").prop("hidden", true);
+                }
+                else if (m == "#1") {
+                    $("[id='air3']").prop("hidden", true);
+                    $("[id='air4']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                }
+                else {
+                    $("[id='air1']").prop("hidden", true);
+                    $("[id='air2']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                }
+            }
+            else if (fact == "BL-T1HIST") {
+                $("[id='air4']").prop("hidden", true);
+                $("[id='air5']").prop("hidden", true);
+            }
+            else if (fact == "QX-T1HIST") {
+                if (m == "#0") {
+                    $("[id='air5']").prop("hidden", true);
+                } else if (m == "#1") {
+                    $("[id='air2']").prop("hidden", true);
+                    $("[id='air3']").prop("hidden", true);
+                    $("[id='air4']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                } else {
+                    $("[id='air1']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                }
+            }
+            else if (fact == "ZB-T1HIST") {
+                if (m == "#1#2#3") {
+                    $("[id='air4']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                } else if (m == "#4#5") {
+                    $("[id='air3']").prop("hidden", true);
+                    $("[id='air4']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                }
+            }
+            else if (fact == "KH-PCC-LH") {
+                $("[id='air3']").prop("hidden", true);
+                $("[id='air4']").prop("hidden", true);
+                $("[id='air5']").prop("hidden", true);
+            }
+            else if (fact == "LD-T1HIST") {
+                if (m == "#0") {
+                    $("[id='air4']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                }
+                else if (m == "#1") {
+                    $("[id='air3']").prop("hidden", true);
+                    $("[id='air4']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                }
+                else {
+                    $("[id='air1']").prop("hidden", true);
+                    $("[id='air2']").prop("hidden", true);
+                    $("[id='air4']").prop("hidden", true);
+                    $("[id='air5']").prop("hidden", true);
+                }
+            }
+            else if (fact == "LZ-T1HIST") {
+                $("[id='air4']").prop("hidden", true);
+                $("[id='air5']").prop("hidden", true);
+            }
+            else if (fact == "HL-T1HIST") {
+                $("[id='air3']").prop("hidden", true);
+                $("[id='air4']").prop("hidden", true);
+                $("[id='air5']").prop("hidden", true);
+            }
+            else {
+
+            }
+            $("#myTable").DataTable({
+                "paging": false,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": false,
+                "info": true,
+                "autoWidth": true,
+                "responsive": false,
+                "fixedHeader": true,
+                "scrollCollapse": true,
+                "scrollY": "39vh",
+                "scrollX": true,
+                "columnDefs": [
+                    //给第一列指定宽度为表格整个宽度的7%
+                    { "width": "7%", "targets": 0 }
+                ]
+            })
+        });
+
+        var linChartCanvas = $('#linChar').get(0).getContext('2d');
+
+        var areaChartOptions = {
+            title: {
+                display: true,
+                text: `比功率`,
+                fontsize: 16
+            },
+            maintainAspectRatio: false,
+            responsive: true,
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    boxWidth: 30,
+                    boxHeight: 80,
+                    fontStyle: 'bold',
+                }
+            },
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        display: false
+                    },
+                }],
+                yAxes: [{
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left'
+
+                },
+                {
+                    id: 'B',
+                    type: 'linear',
+                    position: 'right',
+                    gridLines: {
+                        display: false,
+                    }
+                }]
+            },
+            tooltips: { //滑鼠移到點上顯示資訊
+                enabled: true,
+                intersect: false,
+                mode: 'index',
+            },
+        };
+        var areaChartData = {
+            labels: @Html.Raw(Json.Serialize(Model.dateTime)),
+            datasets: [
+                {
+                    type: 'line',
+                    yAxisID: 'A',
+                    label: "比功率",
+                    backgroundColor: 'blue',
+                    borderColor: 'blue',
+                    fill: false,
+                    data: @Html.Raw(Json.Serialize(Model.specificPower)),
+                },
+                {
+                    type: 'line',
+                    yAxisID: 'A',
+                    label: '平均比功率',
+                    backgroundColor: 'red',
+                    borderColor: 'red',
+                    pointRadius: false,
+                    fill: false,
+                    data: @Html.Raw(Json.Serialize(Model.Avg)),
+                },
+            ]
+        }
+
+        var linChartOptions = $.extend(true, {}, areaChartOptions)
+        var linchartData = $.extend(true, {}, areaChartData)
+
+        var linechart = new Chart(linChartCanvas, {
+            type: 'bar',
+            data: linchartData,
+            options: linChartOptions,
+        })
+
+        function LoadNewChart() {
+            var day = $("#day").val();
+            var millId = $("#millId").val();
+            millId = millId.replaceAll("#", "%23");
+            document.location = `/AirComp/AirCompList?factory=${factory}&day=${day}&m=${millId}`;
+        };
+        //空壓機切換
+        $("#millId").change(function () {
+            LoadNewChart();
+        })
+
+        //寄送EXCEL
+        $("#btn_excel").click(function () {
+            var val = [];
+            var day = $("#day").val();
+            var millId = $("#millId").val();
+            var specificPower = @Html.Raw(Json.Serialize(Model.specificPower));
+            var avg = @Html.Raw(Json.Serialize(Model.Avg));
+            var date = @Html.Raw(Json.Serialize(Model.dateTime));
+            var checkbox = $(".check").filter(':checked').map(function () {
+                return /* key: */$(this).val();
+            }).get();
+
+            var tt = { "specificPower": specificPower, "avg": avg, "factoryId": factory, "checkBox": checkbox, "date": date, "day": day, "m": millId };
+            var jsonData = JSON.stringify(tt);
+            console.log(tt)
+            $.ajax({
+                url: `@Url.Content("~/AirComp/CheckData")`,
+                type: "POST",
+                data: { "data": jsonData },
+                success: function (response) {
+                    if (response == "Ok") {
+                        document.location = `../aircomp/CreatEexcelday?fock=` + encodeURIComponent(jsonData);
+                    } else {
+                        Swal.fire('無資料');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                }
+            });
+        })
+
+        //讀取打勾的部分顯示新的圖表
+        $("input[class=check]").click(function () {
+            var m = "@list";
+            var val = $(this).val();
+            var name = "";
+            var color = "";
+            day = $("#day").val();
+            switch (val) {
+                case "AirConsumption":
+                    name = "空氣用量M3/Min";
+                    color = "rgba(255, 206, 86, 0.8)";
+                    break;
+                case "PowerC":
+                    name = "用電量";
+                    color = "rgba(75, 192, 192, 0.8)";
+                    break;
+                case "PowerC01":
+                    name = "#1用電量";
+                    color = "rgb(240, 0, 120, 0.8)";
+                    break;
+                case "WorkTime01":
+                    name = "#1 運轉(分)";
+                    color = "rgb(70, 163, 255, 0.8)";
+                    break;
+                case "PowerC02":
+                    name = "#2 用電量";
+                    color = "rgb(238, 232, 170, 0.8)";
+                    break;
+                case "WorkTime02":
+                    name = "#2 運轉(分)";
+                    color = "rgb(34, 139, 34, 0.8)";
+                    break;
+                case "PowerC03":
+                    name = "#3 用電量";
+                    color = "rgb(178, 34, 34, 0.8)";
+                    break;
+                case "WorkTime03":
+                    name = "#3 運轉(分)";
+                    color = "rgb(199, 21, 133, 0.8)";
+                    break;
+                case "PowerC04":
+                    name = "#4 用電量";
+                    color = "rgb(255, 182, 193, 0.8)";
+                    break;
+                case "WorkTime04":
+                    name = "#4 運轉(分)";
+                    color = "rgb(112, 66, 20, 0.8)";
+                    break;
+                case "PowerC05":
+                    name = "#5 用電量";
+                    color = "rgb(255, 165 ,0, 0.8)";
+                    break;
+                case "WorkTime05":
+                    name = "#5 運轉(分)";
+                    color = "rgb(160, 32, 240,0.8)";
+                    break;
+            }
+
+            var input = $(this).is(":checked");
+            $.ajax({
+                url: `@Url.Content("~/AirComp/LoadNewData")`,
+                mthod: 'POST',
+                data: { "f": factory, "m": m, "p": val, "d": day },
+                dataType: "JSON",
+                success: function (res) {
+                    if (input) {
+                        linchartData.datasets.push({
+                            label: name,
+                            yAxisID: 'B',
+                            backgroundColor: color,
+                            borderColor: color,
+                            pointRadius: false,
+                            data: res
+                        });
+                        linechart.update();
+                    } else {
+                        let index = linchartData.datasets.findIndex(d => d.label === name);
+                        if (index !== -1) {
+                            linchartData.datasets.splice(index, 1);
+                        }
+                        linechart.update();
+                    }
+                }
+            })
+        });
+        //月份修改
+        $("#day").change(function () {
+            LoadNewChart()
+        })
+        //向前
+        $("#rightdate").click(function () {
+            var date = $("#day").val();
+            var ss = new Date();
+            var yy = ss.getFullYear();
+            var mm = ss.getMonth() + 1;
+            var nowD = ss.getDate();
+            if (mm < 10) {
+                mm = "0" + mm;
+            }
+            if (nowD < 10) {
+                nowD = "0" + nowD;
+            }
+            var ymdd = yy + "-" + mm + "-" + nowD;
+            //先抓取當月與日
+            if (date != ymdd) {
+                date = date.split("-");
+                y = Number(date[0]);
+                M = Number(date[1]);
+                d = Number(date[2])
+                var ymd = new Date(yy, M, 0);
+                var dd = ymd.getDate();
+                d = d + 1;
+
+                if (d > dd) {
+                    d = 1;
+                    M += 1;
+                }
+                if (d <= 9) {
+                    d = "0" + d;
+                }
+                if (M > 12) {
+                    y = y + 1;
+                    M = 1;
+                }
+                if (M <= 9) {
+                    M = "0" + M;
+                }
+                ym = y + "-" + M + "-" + d;
+                $("#day").val(ym);
+
+                LoadNewChart()
+            }
+        })
+        //向後
+        $("#leftdate").click(function () {
+            var date = $("#day").val();
+            var ss = new Date();
+            var ymd = new Date(yy, m, 0);
+
+            var yy = ss.getFullYear();
+            var m = ss.getMonth() + 1;
+
+            var dd = ymd.getDate();
+            //先抓取當月與日
+
+            date = date.split("-");
+
+            y = Number(date[0]);
+            M = Number(date[1]);
+            d = Number(date[2])
+            d = d - 1;
+
+            if (d == 0) {
+                var mm = M - m;
+                m = ss.getMonth() + mm;
+                ymd = new Date(y, m, 0);
+                dd = ymd.getDate();
+                d = dd;
+                M = M - 1;
+            }
+            if (d <= 9) {
+                d = "0" + d;
+            }
+            if (M == 0) {
+                y = y - 1;
+                M = 12;
+            }
+            if (M <= 9) {
+                M = "0" + M;
+            }
+            ym = y + "-" + M + "-" + d;
+            $("#day").val(ym);
+            LoadNewChart()
+        })
+    </script>
+}

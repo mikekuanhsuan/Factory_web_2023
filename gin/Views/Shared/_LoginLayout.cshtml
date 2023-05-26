@@ -1,0 +1,48 @@
+﻿@using Microsoft.AspNetCore.Http;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>晉瑜 | Log in</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link href="~/lib/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <!-- icheck bootstrap -->
+    @*<link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">*@
+    <!-- Theme style -->
+    <link href="~/css/adminlte.min.css" rel="stylesheet" />
+
+
+
+    @await RenderSectionAsync("css", required: false)
+</head>
+<body class="hold-transition login-page">
+
+    @RenderBody()
+
+    <!-- /.login-box -->
+    <!-- jQuery -->
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/js/adminlte.min.js"></script>
+
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        @{
+            var Account = Context.Session.GetString("Account");
+        }
+        var account = "@Account"
+        console.log("Session--"+ account);
+    </script>
+
+</body>
+</html>

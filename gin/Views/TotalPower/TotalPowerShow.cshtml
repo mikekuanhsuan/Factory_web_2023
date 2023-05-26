@@ -1,0 +1,447 @@
+﻿@{
+    ViewData["Title"] = "TotalPowerShow";
+}
+@section css{
+    <style>
+        td{
+            text-align: center;
+            font-size: 20px;
+        }
+        label{
+            font-size: 20px;
+        }
+    </style>
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card w-auto mt-3">
+            <div class="card-header">
+                <button id="leftdate" style="background:transparent; border-width:0px; outline:none;"><i class="fas fa-caret-left"></i></button>
+                <input id="day" type="month" value="@ViewBag.day" />
+                <button id="rightdate" style="background:transparent; border-width:0px; outline:none;"><i class="fas fa-caret-right"></i></button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header border-0" style="text-align:center">
+                                <h3 class="card-title">台電</h3>
+                            </div>
+                            <div class="card-body table-responsive p-0 ">
+                                <table class="table table-valign-middle">
+                                    <thead>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>契約內容</td>
+                                            <td id="tDcontract"></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>尖峰</td>
+                                            <td id="tDpeak"></td>
+                                            <td id="tDpeakk"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>半尖峰</td>
+                                            <td id="tDhalfpeak"></td>
+                                            <td id="tDhalfpeakk"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>周六半尖峰</td>
+                                            <td id="tDsixpeak"></td>
+                                            <td id="tDsixpeakk"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>離峰</td>
+                                            <td id="tDoffpeak"></td>
+                                            <td id="tDoffpeakk"></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.card -->
+                        <div class="card">
+                            <div class="card-header border-0">
+                                <div class="card-header border-0">
+                                    <div class="d-flex justify-content-around">
+                                        <h3 class="card-title">廠內用電量</h3>
+                                        <label id="lblfactoryPower"></label>
+                                        <label>&nbsp</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card -->
+                        <div class="card">
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-valign-middle">
+                                    <tbody id="tBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col-md-6 -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header border-0">
+                                <div>
+                                    <h3 class="card-title">太陽能</h3>
+                                </div>
+                            </div>
+                            <div class="card-body table-responsive p-0">
+                                <div class="d-flex">
+                                    <table class="table table-valign-middle">
+                                        <thead>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>建置</td>
+                                                <td id="tDbuild" style="text-align: right"></td>
+                                                <td style="text-align: left">KW</td>
+                                            </tr>
+                                            <tr>
+                                                <td>發電量</td>
+                                                <td id="tDpowergeneration" style="text-align: right"></td>
+                                                <td style="text-align: left">KW</td>
+                                            </tr>
+                                            <tr>
+                                                <td>發電量</td>
+                                                <td id="tDpowergenerationday" style="text-align: right"></td>
+                                                <td style="text-align: left">度/KW.日</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="table table-valign-middle" id="suntable2" hidden>
+                                        <thead>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>建置</td>
+                                                <td id="tDbuild2" style="text-align: right"></td>
+                                                <td style="text-align: left">KW</td>
+                                            </tr>
+                                            <tr>
+                                                <td>發電量</td>
+                                                <td id="tDpowergeneration2" style="text-align: right"></td>
+                                                <td style="text-align: left">KW</td>
+                                            </tr>
+                                            <tr>
+                                                <td>發電量</td>
+                                                <td id="tDpowergenerationday2" style="text-align: right"></td>
+                                                <td style="text-align: left">度/KW.日</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card -->
+
+                        <div class="card">
+                            <div class="card-header border-0">
+                            </div>
+                            <div class="card-body" id="myChart">
+                                <canvas id="linChar" style="min-height: 250px; height: 250px; max-height: 100%; max-width: 100%;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/chart.js/chart.min.js"></script>
+<script src="~/lib/chart.js/chartjs-plugin-datalabels.min.js"></script>
+
+@section Scripts{
+    <script>
+
+        $(function () {
+            LoadPower();
+        })
+        $("#day").change(function () {
+            ChangeLoad()
+            LoadPower()
+        })
+        //向前
+        $("#rightdate").click(function () {
+            var day = $("#day").val();
+            var ss = new Date();
+            var m = ss.getMonth() + 1;
+            if (m > 0) {
+                m = "0" + m;
+            }
+            var ym = ss.getFullYear() + "-" + m;
+            if (ym == day) {
+                console.log("相同");
+            } else {
+                month = day.split("-");
+                y = Number(month[0]);
+                M = Number(month[1]);
+                M = M + 1;
+                if (M > 12) {
+                    y = y + 1;
+                    M = 1;
+                    if (M <= 9) {
+                        M = "0" + M;
+                    }
+                } else {
+                    if (M <= 9) {
+                        M = "0" + M;
+                    }
+                }
+                ym = y + "-" + M;
+                $("#day").val(ym);
+
+                ChangeLoad();
+                LoadPower();
+            }
+
+        })
+        //向後
+        $("#leftdate").click(function () {
+            var day = $("#day").val();
+            month = day.split("-");
+            console.log(day)
+            y = Number(month[0]);
+            M = Number(month[1]);
+            M = M - 1;
+            if (M == 0) {
+                y = y - 1;
+                M = 12;
+                if (M <= 9) {
+                    M = "0" + M;
+                }
+            } else {
+                if (M <= 9) {
+                    M = "0" + M;
+                }
+            }
+            var ym = y + "-" + M;
+
+            $("#day").val(ym);
+            ChangeLoad()
+            LoadPower()
+        })
+
+        function ChangeLoad() {
+            $("#tBody").html("");
+            $("#linChar").remove();
+            $("#myChart").append("<canvas id='linChar' style='min - height: 250px; height: 250px; max - height: 100 %; max - width: 100 %; '></canvas>");
+        }
+
+        function LoadPower() {
+            var factoryIdd = "@ViewBag.FactoryId";
+            var day = $("#day").val();
+            $.ajax({
+                url: '@Url.Content("~/TotalPower/TotalPower")',
+                method: 'post',
+                data: { "factory": factoryIdd, "day": day },
+                dataType: 'Json',
+                success: function (res) {
+                    var factoryId = res.factoryId;
+                    //--台電資料--
+                    var con = res.contract;
+                    var hal = res.halfpeak;
+                    var pea = res.peak;
+                    var six = res.sixpeak;
+                    var off = res.offpeak;
+                    var comma = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g
+                    var contract = con.replace(comma, ',');
+                    var peak = pea.replace(comma, ',');
+                    var halfpeak = hal.replace(comma, ',');
+                    var sixpeak = six.replace(comma, ',');
+                    var offpeak = off.replace(comma, ',');
+
+                    $("#tDcontract").html(contract + "&nbspKW");
+                    $("#tDpeak").html(peak + "&nbspKW");
+                    $("#tDhalfpeak").html(halfpeak + "&nbspKW");
+                    $("#tDsixpeak").html(sixpeak + "&nbspKW");
+                    $("#tDoffpeak").html(offpeak + "&nbspKW");
+
+                    $("#tDpeakk").html(res.peakk + "&nbsp%");
+                    $("#tDhalfpeakk").html(res.halfpeakk + "&nbsp%");
+                    $("#tDsixpeakk").html(res.sixpeakk + "&nbsp%");
+                    $("#tDoffpeakk").html(res.offpeakk + "&nbsp%");
+                    //--台電資料 END--
+
+                    //--太陽能--
+                    let energy = `${res.solarenergy}`;
+                    let solarEnergy = energy.replace(comma, ',');
+                    $("#tDbuild").html(res.seid);
+                    $("#tDpowergeneration").html(solarEnergy);
+                    $("#tDpowergenerationday").html(res.v);
+
+                    if (factoryIdd == "ZB-T1HIST") {
+                        $("#suntable2").attr('hidden', false);
+
+                        let energy = `${res.solarenergy2}`;
+                        let solarEnergy2 = energy.replace(comma, ',');
+                        $("#tDbuild2").html(res.seid2);
+                        $("#tDpowergeneration2").html(solarEnergy2);
+                        $("#tDpowergenerationday2").html(res.v2);
+                    }
+                    //--太陽能 END--
+
+                    //--廠內總用電--
+                    $("#lblfactoryPower").html(res.factoryPower + "&nbspKWH");
+                    //--廠內總用電 END--
+
+                    //--空壓機--
+                    tBody = "<tr><td>空壓機</td><td>" + res.airtotal + "&nbspKWH</td></tr>";
+                    $("#tBody").append(tBody);
+                    //--空壓機 END--
+                    //console.log(res.gPowerM[0].powerC01);
+                    //--各磨資料--
+                    if (factoryId == "KY-T1HIST") {
+                        var pC01 = String(res.gPowerM[0].powerC01);
+                        var pC02 = String(res.gPowerM[0].powerC02);
+                        var pC03 = String(res.gPowerM[0].powerC03);
+                        var pC04 = String(res.gPowerM[0].powerC04);
+                        var pC05 = String(res.gPowerM[0].powerC05);
+                        var pC06 = String(res.gPowerM[0].powerC06);
+                        var comma = /\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g
+                        var powerC01 = pC01.replace(comma, ',');
+                        var powerC02 = pC02.replace(comma, ',');
+                        var powerC03 = pC03.replace(comma, ',');
+                        var powerC04 = pC04.replace(comma, ',');
+                        var powerC05 = pC05.replace(comma, ',');
+                        var powerC06 = pC06.replace(comma, ',');
+
+                        tBody = "<tr><td>#1</td><td>" + powerC01 + "&nbspKWH</td></tr><tr><td>#2</td><td>"
+                            + powerC02 + "&nbspKWH</td></tr><tr><td>#3</td><td>"
+                            + powerC03 + "&nbspKWH</td></tr><tr><td>#4</td><td>"
+                            + powerC04 + "&nbspKWH</td></tr><tr><td>#5</td><td>"
+                            + powerC05 + "&nbspKWH</td></tr><tr><td>#6</td><td>"
+                            + powerC06 + "&nbspKWH</td></tr>";
+                        $("#tBody").append(tBody);
+
+                    } else if (factoryId == "KH-PCC-LH" || factoryId == "LD-T1HIST" || factoryId == "LZ-T1HIST" || factoryId == "HL-T1HIST") {
+                        pC01 = String(res.gPowerM[0].powerC01);
+                        pC02 = String(res.gPowerM[0].powerC02);
+
+                        powerC01 = pC01.replace(comma, ',');
+                        powerC02 = pC02.replace(comma, ',');
+
+                        tBody = "<tr><td>#1</td><td>" + powerC01 + "&nbspKWH</td></tr><tr><td>#2</td><td>"
+                            + powerC02 + "&nbspKWH</td></tr>";
+                        $("#tBody").append(tBody);
+                    } else if (factoryId == "BL-T1HIST") {
+                        pC01 = String(res.gPowerM[0].powerC01);
+                        pC02 = String(res.gPowerM[0].powerC02);
+                        pC03 = String(res.gPowerM[0].powerC03);
+                        pC04 = String(res.gPowerM[0].powerC04);
+
+                        powerC01 = pC01.replace(comma, ',');
+                        powerC02 = pC02.replace(comma, ',');
+                        powerC03 = pC03.replace(comma, ',');
+                        powerC04 = pC04.replace(comma, ',');
+
+                        tBody = "<tr><td>#1</td><td>" + powerC01 + "&nbspKWH</td></tr><tr><td>#2</td><td>"
+                            + powerC02 + "&nbspKWH</td></tr><tr><td>#3</td><td>"
+                            + powerC03 + "&nbspKWH</td></tr><tr><td>#4</td><td>"
+                            + powerC04 + "&nbspKWH</td></tr>";
+                        $("#tBody").append(tBody);
+                    } else if (factoryId == "QX-T1HIST") {
+                        pC01 = String(res.gPowerM[0].powerC01);
+                        pC02 = String(res.gPowerM[0].powerC02);
+                        pC03 = String(res.gPowerM[0].powerC03);
+
+                        powerC01 = pC01.replace(comma, ',');
+                        powerC02 = pC02.replace(comma, ',');
+                        powerC03 = pC03.replace(comma, ',');
+
+                        tBody = "<tr><td>#1</td><td>" + powerC01 + "&nbspKWH</td></tr><tr><td>#2</td><td>"
+                            + powerC02 + "&nbspKWH</td></tr><tr><td>#3</td><td>"
+                            + powerC03 + "&nbspKWH</td></tr>";
+                        $("#tBody").append(tBody);
+                    } else if (factoryId == "ZB-T1HIST") {
+                        pC01 = String(res.gPowerM[0].powerC01);
+                        pC02 = String(res.gPowerM[0].powerC02);
+                        pC03 = String(res.gPowerM[0].powerC03);
+                        pC04 = String(res.gPowerM[0].powerC04);
+                        pC05 = String(res.gPowerM[0].powerC05);
+                        pC06 = String(res.gPowerM[0].powerC06);
+                        pC07 = String(res.gPowerM[0].powerC07);
+                        pC08 = String(res.gPowerM[0].powerC08);
+
+                        powerC01 = pC01.replace(comma, ',');
+                        powerC02 = pC02.replace(comma, ',');
+                        powerC03 = pC03.replace(comma, ',');
+                        powerC04 = pC04.replace(comma, ',');
+                        powerC05 = pC05.replace(comma, ',');
+                        powerC06 = pC06.replace(comma, ',');
+                        powerC07 = pC07.replace(comma, ',');
+                        powerC08 = pC08.replace(comma, ',');
+
+                        tBody = "<tr><td>#1</td><td>" + powerC01 + "&nbspKWH</td></tr><tr><td>#2</td><td>"
+                            + powerC02 + "&nbspKWH</td></tr><tr><td>#3</td><td>"
+                            + powerC03 + "&nbspKWH</td></tr><tr><td>#4</td><td>"
+                            + powerC04 + "&nbspKWH</td></tr><tr><td>#5</td><td>"
+                            + powerC05 + "&nbspKWH</td></tr><tr><td>#6</td><td>"
+                            + powerC06 + "&nbspKWH</td></tr><tr><td>#7</td><td>"
+                            + powerC07 + "&nbspKWH</td></tr><tr><td>#8</td><td>"
+                            + powerC08 + "&nbspKWH</td></tr>";
+                        $("#tBody").append(tBody);
+                    }
+
+                    //--各磨資料 END--
+                    var donutChartCanvas = $('#linChar').get(0).getContext('2d')
+                    var donutData = {
+                        labels: res.millNameChart,
+                        datasets: [
+                            {
+                                data: res.millChart,
+                                backgroundColor: ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgba(34, 139, 34, 0.8)", "rgba(255, 182, 193, 0.8)", "rgba(178, 34, 34, 0.8)", "rgba(70, 163, 255, 0.8)", "#00E3E3", "#8A2BE2"],
+                            }
+                        ]
+                    }
+                    var donutOptions = {
+                        maintainAspectRatio: true,
+                        responsive: true,
+                        legend: {
+                            position: 'left',
+                            labels: {
+                                fontSize: 20
+                            }
+                        },
+                        title: {
+                            display: true,
+                            position: 'top',
+                            text: '用電量',
+                            fontSize: 16
+                        },
+                        plugins: {
+                            datalabels: {
+                                color: 'white',
+                                formatter: function (value) {
+                                    return Math.round(value) + '%';
+                                }
+                            }
+                        },
+
+
+                    }
+                    new Chart(donutChartCanvas, {
+                        type: 'doughnut',
+                        data: donutData,
+                        options: donutOptions
+                    })
+                    //--Chartjs END--
+                }
+            })
+        }
+
+
+    </script>
+}

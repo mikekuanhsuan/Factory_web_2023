@@ -1,0 +1,155 @@
+﻿@model IEnumerable<gin.Models.WLoginUser>
+
+@{
+    ViewData["Title"] = "User_list";
+}
+
+
+<h1>員工資料</h1>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card w-auto">
+            <div class="card-header">
+            </div>
+            <div class="card-body">
+                <table id="User_table" class=" table">
+                    <thead>
+                        <tr>
+
+                            <th>
+                                使用者ID
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Account)
+                            </th>
+                            <th>
+                                名稱
+                            </th>
+                            <th>
+                                單位
+                            </th>
+                            <th>
+                                狀態
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserId)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Account)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FactoryId)
+                                </td>
+                                <td>
+                                    @{
+                                        var state = item.State.ToString();
+                                        if (state == "1")
+                                        {
+                                            <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                                <input type="checkbox" class="custom-control-input" name="@item.Account" value="@item.Account" id=@item.Account checked>
+                                                <label class="custom-control-label" for=@item.Account></label>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                                <input type="checkbox" class="custom-control-input" name="@item.Account" value="@item.Account" id=@item.Account>
+                                                <label class="custom-control-label" for=@item.Account></label>
+                                            </div>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @Html.ActionLink("權限編輯", "Edit", new {  id=item.Account})
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
+
+@section Scripts{
+    <script>
+        $(function () {
+            $("#User_table").DataTable({
+
+            })
+
+        })
+        $(".custom-control-input").click(function () {
+            var name = $(this).attr("name");
+            var account = $(this).val();
+            var state = "";
+            $.ajax({
+                url: '@Url.Content("~/ajax/UserState")',
+                method: 'POST',
+                traditional: true,
+                data: { "account": account },
+                dataType: "JSON",
+                success: function (res) {
+                    var state = res;
+                    Swal.fire({
+                        title: '確認修改狀態嗎 ? ',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        cancelButtonColor: '#d33',
+                        cancelButtonText: '取消',
+                        confirmButtonText: '確認'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                             if (state == "1") {
+                                state = "0";
+                            } else {
+                                state = "1";
+                            }
+                            Swal.fire(
+                                'OK!',
+                                '修改完成',
+                                'success'
+                            )
+                            $.ajax({
+                                url: '@Url.Content("~/ajax/SaveUserState")',
+                                method: 'POST',
+                                traditional: true,
+                                data: { "account": account,"state": state},
+                            })
+                        } else {
+                            if (state == "1") {
+                                $("input[name=" + name + "]").prop('checked', true);
+                            } else {
+                                $("input[name=" + name + "]").prop('checked',false);
+                                console.log("No")
+                            }
+                        }
+                    })
+                }
+            })
+
+        })                               
+                                                                //$(this).click(function () {
+                                                                //    checkValue = $(this).val();
+                                                                //    console.log(checkValue); //on
+                                                                //})
+
+
+    </script>
+
+}
+

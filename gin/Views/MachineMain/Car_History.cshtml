@@ -1,0 +1,385 @@
+﻿@model gin.ViewModel.Car_History
+
+@{
+    ViewData["Title"] = "Car_History";
+}
+@section css{
+    <style>
+        .buttons-excel {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+            .buttons-excel:hover {
+                background-color: lightgreen;
+            }
+    </style>
+}
+
+<h1>發貨管理</h1>
+<div class="row">
+    <div class="col-12">
+        <div class="card w-auto ">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="row">
+                            <div class="col">
+                                <label style="font-size:15px;padding-top:9px;">日期&nbsp&nbsp:&nbsp&nbsp </label>
+                                <input id="day_star" type="date" value="@ViewBag.day1" />
+                                <label style="font-size:15px;padding-top:9px;">&nbsp&nbsp～&nbsp&nbsp </label>
+                                <input id="day_end" type="date" value="@ViewBag.day2" />
+                            </div>
+                        </div>
+                        <div class="col">
+                            @{
+                                var list = ViewBag.scaleNo;
+                                var plist = ViewBag.prodId;
+                            }
+                            <div class="row">
+                                <label style="font-size:15px;padding-top:9px;">地磅&nbsp&nbsp:&nbsp&nbsp </label>
+                                <select id="scaleNo">
+                                    <option value="0">請選擇</option>
+                                    @foreach (var data in list)
+                                    {
+                                        if (data != "0" && data != " ")
+                                        {
+                                            <option value="@data">@data</option>
+                                        }
+                                    }
+                                </select>
+                                <label style="font-size:15px;padding-top:9px;">&nbsp&nbsp品項&nbsp&nbsp:&nbsp&nbsp </label>
+                                <select id="prodId">
+                                    <option value="0">請選擇</option>
+                                    @foreach (var data in plist)
+                                    {
+                                        <option value="@data">@data</option>
+                                    }
+                                </select>
+                                <label style="font-size:15px;padding-top:9px;">&nbsp&nbsp安全帽&nbsp&nbsp:&nbsp&nbsp </label>
+                                <select id="hat">
+                                    <option value="-1">請選擇</option>
+                                    <option value="0">已戴</option>
+                                    <option value="1">未戴</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div>
+                            <label style="font-size:15px;padding-top:9px;">客戶代號&nbsp&nbsp:&nbsp&nbsp </label>
+                            <input id="txtKey" type="text" />
+                        </div>
+                        <div>
+                            <input type="button" class="btn btn-primary btn-sm" value="查詢" onclick="ClickSerch()" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <p id="lbl_count" style="font-size:larger; padding-left:10px">出單總數 : @ViewBag.count</p>
+                    <p id="lbl_bulk" style="font-size:larger; padding-left:10px">散裝 : @ViewBag.bulk</p>
+                    <p id="lbl_package" style="font-size:larger; padding-left:10px">袋裝 : @ViewBag.package</p>
+                </div>
+                <table id="table_car" class="table table-striped table-bordered table-hover text-center">
+                    <thead>
+                        <tr>
+                            <th>
+                                單號
+                            </th>
+                            <th>
+                                搖車紀錄
+                            </th>
+                            <th>
+                                安全帽
+                            </th>
+                            <th>
+                                車號
+                            </th>
+                            <th>
+                                地磅
+                            </th>
+                            <th>
+                                廠商
+                            </th>
+                            <th>
+                                進場時間
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.occDespatches)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="#" onclick="LoadHistory(this)" data-bs-toggle="modal" data-bs-target="#Historymodal">@Html.DisplayFor(modelItem =>  item.WorkId)</a>
+                                </td>
+                                <td>
+                                    @foreach (var i in Model.hat)
+                                    {
+
+                                        @if (i.workId == item.WorkId)
+                                        {
+                                            <font color="red">@i.shake</font>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @foreach (var i in Model.hat)
+                                    {
+                                        @if (i.workId == item.WorkId)
+                                        {
+                                            @if (@i.hat == "未戴")
+                                            {
+                                                <font color="red">@i.hat</font>
+                                            }
+                                            else
+                                            {
+                                                @i.hat
+                                            }
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CarId)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ScaleNo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem =>  item.CustName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem =>  item.ITime)
+                                </td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="Historymodal" tabindex="-1" aria-labelledby="examplemodallabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <ul class="nav justify-content-center">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active" onclick="LoadcarImg()" aria-current="page">車輛</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="Loadperson()" href="#">人員</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-8">
+                        <table>
+                            <tbody class="table table-bordered">
+                                <tr>
+                                    <td>日期 : </td>
+                                    <td id="date"></td>
+                                    <td>地磅 : </td>
+                                    <td id="sNo"></td>
+                                </tr>
+                                <tr>
+                                    <td>工作單號 : </td>
+                                    <td id="workId"></td>
+                                    <td>車牌 : </td>
+                                    <td id="carId"></td>
+                                </tr>
+                                <tr>
+                                    <td>入磅時間 : </td>
+                                    <td id="iTime"></td>
+                                    <td>出磅時間 : </td>
+                                    <td id="oTime"></td>
+                                </tr>
+                                <tr>
+                                    <td>廠商 : </td>
+                                    <td colspan="3" id="custName"></td>
+                                </tr>
+                                <tr>
+                                    <td>空車重量 :</td>
+                                    <td colspan="3" id="tare"></td>
+                                </tr>
+                                <tr>
+                                    <td>淨重 : </td>
+                                    <td id="deliWt"></td>
+                                    <td>產品 : </td>
+                                    <td id="pid"></td>
+                                </tr>
+                                <tr>
+                                    <td>總重 : </td>
+                                    <td colspan="3" id="gross"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-4" style="align-items: center; display: flex;">
+                        <div id="imgCarId">
+                        </div>
+                    </div>
+                </div>
+                <br>                
+                <div id="carImg">
+                    <div>入磅</div>
+                    <table>
+                        <thead id="imgCarIn">
+                        </thead>
+                    </table>
+                    <br>
+                    <div>出磅</div>
+                    <table>
+                        <thead id="imgCarOut">
+                        </thead>
+                    </table>
+                </div>
+                <div id="personImg">
+                    <table>
+                        <thead>
+                            <tr id="imgPerson">
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(function () {
+            $("#table_car").DataTable({
+                "paging": false,
+                "lengthChange": true,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": true,
+                "responsive": true,
+                "fixedHeader": true,
+                "scrollCollapse": true,
+                "scrollY": "60vh",
+                "deferRender": true,
+                "dom": 'Bfrtip',
+                "buttons": [
+                    'excel'
+                ]
+            })
+        })
+
+        function LoadHistory(e) {
+            $("#personImg").hide();
+            $("#carImg").show();
+
+            $("#imgCarId").html("");
+            $("#imgCarIn").html("");
+            $("#imgCarOut").html("");
+            $("#imgPerson").html("");
+
+            var workId = $(e).text().trim()
+            $.ajax({
+                url: '@Url.Content("~/ajax/car_history")',
+                method: "POST",
+                data: { "workId": workId },
+                dataType: "JSON",
+                success: function (res) {
+                    res.forEach(function (val) {
+                        var datee = val.oDate;
+                        const dateString = datee;
+                        const date = dateString.substring(0, 10);
+                        $("#date").html(date).text().trim()
+                        $("#sNo").html(val.scaleNo).text().trim()
+                        $("#workId").html(val.workId).text().trim()
+                        $("#carId").html(val.carId).text().trim()
+                        $("#iTime").html(val.iTime).text().trim()
+                        $("#oTime").html(val.oTime).text().trim()
+                        $("#custName").html(val.custName).text().trim()
+                        $("#tare").html(val.tare).text().trim()
+                        $("#deliWt").html(val.deliWt).text().trim()
+                        $("#pid").html(val.prodId)
+                        $("#gross").html(val.gross).text().trim()
+                    })
+                }
+            })
+            $.ajax({
+                url: '@Url.Content("~/ajax/car_history_Image")',
+                method: "POST",
+                data: { "workId": workId },
+                dataType: "JSON",
+                success: function (res) {
+                    console.log(res);
+                    if (res.length != 0) {
+                        res.forEach(function (val) {
+                            imgCarIdd = '<img src="/Photo/Photo/' + val.id + '/' + val.id + '_fplate.jpg" class="w-100"/>';
+                            imgCarrIn = '<tr><td><img src="/Photo/Photo/' + val.id + '/' + val.id
+                                + '_F1.jpg" class="w-100" /></td><td><img src="/Photo//Photo/' + val.id
+                                + '/' + val.id + '_B1.jpg" class="w-100" /></td></tr>';
+                            imgCarrOut = '<tr><td><img src="/Photo//Photo/' + val.id
+                                + '/' + val.id + '_F2.jpg" class="w-100" /></td><td><img src="/Photo//Photo/' + val.id
+                                + '/' + val.id + '_B2.jpg" class="w-100"/></td></tr>';
+                            imgPerson = '<td><img src="/Photo/Photo/' + val.id + '/' + val.id + '_person.jpg" class="w-100" /></td>';
+                        })
+
+                        $("#imgCarId").append(imgCarIdd);
+
+                        $("#imgCarIn").append(imgCarrIn);
+                        $("#imgCarOut").append(imgCarrOut);
+
+                        $("#imgPerson").append(imgPerson);
+                    } else {
+                        $("#imgCarId").html("");
+                        $("#imgCarIn").html("");
+                        $("#imgCarOut").html("");
+                        $("#imgPerson").html("");
+                    }
+                }
+            })
+        }
+
+        $("#scaleNo").change(function () {
+            console.log($("#scaleNo").val())
+        })
+
+        function ClickSerch() {
+
+            var day_star = $("#day_star").val();
+            var day_end = $("#day_end").val();
+            var scaleNo = $("#scaleNo").val();
+            var prodId = $("#prodId").val();
+            var txtKey = $("#txtKey").val();
+            var hat = $("#hat").val();
+            var factoryId = "@ViewBag.factoryId";
+            document.location = `car_History?factoryId=${factoryId}&sDay=${day_star}&eDay=${day_end}&scaleNo=${scaleNo}&prodId=${prodId}&txtKey=${txtKey}&hatt=${hat}`;
+
+        }
+
+        function Loadperson() {
+            $("#personImg").show();
+            $("#carImg").hide();
+        }
+        function LoadcarImg() {
+            $("#personImg").hide();
+            $("#carImg").show();
+        }
+
+    </script>
+}
+
+

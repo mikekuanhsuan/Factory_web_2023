@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "test";
+}
+
+
+@section css{
+    <style>
+        #container {
+            height: 400px;
+            min-width: 300px;
+        }
+    </style>
+}
+<h1>test</h1>
+<div id="container"></div>
+
+<script src="~/lib/code/highstock.js"></script>
+<script src="~/lib/code/modules/data.js"></script>
+<script src="~/lib/code/modules/exporting.js"></script>
+<script src="~/lib/code/modules/export-data.js"></script>
+<script src="~/lib/code/modules/accessibility.js"></script>
+
+
+@section Scripts{
+    <script>
+        var chart = Highcharts.stockChart('container', {
+            chart: {
+                type: 'line'
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    second: '%Y-%m-%d<br/>%H:%M:%S',
+                    minute: '%Y-%m-%d<br/>%H:%M',
+                    hour: '%Y-%m-%d<br/>%H:%M',
+                    day: '%Y<br/>%m-%d',
+                    week: '%Y<br/>%m-%d',
+                    month: '%Y-%m',
+                    year: '%Y'
+                }
+            },
+            series: [{
+                data: [
+                    [Date.UTC(2022, 0, 1), 29.9],
+                    [Date.UTC(2022, 1, 1), 71.5],
+                    [Date.UTC(2022, 2, 1), 106.4],
+                    [Date.UTC(2022, 3, 1), 129.2],
+                    [Date.UTC(2022, 4, 1), 144.0],
+                    [Date.UTC(2022, 5, 1), 176.0],
+                    [Date.UTC(2022, 6, 1), 135.6],
+                    [Date.UTC(2022, 7, 1), 148.5],
+                    [Date.UTC(2022, 8, 1), 216.4],
+                    [Date.UTC(2022, 9, 1), 194.1],
+                    [Date.UTC(2022, 10, 1), 95.6],
+                    [Date.UTC(2022, 11, 1), 54.4]
+                ]
+            }]
+        });
+
+    </script>
+
+}

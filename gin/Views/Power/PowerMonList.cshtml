@@ -1,0 +1,414 @@
+﻿@model IEnumerable<gin.ViewModel.PowerDViewModel>
+
+@{
+    ViewData["Title"] = "PowerMonList";
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card w-auto mt-3">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <button id="leftdate" style="background:transparent; border-width:0px; outline:none;"><i class="fas fa-caret-left"></i></button>
+                        <input id="day" type="month" value="@ViewBag.day" />
+                        <button id="rightdate" style="background:transparent; border-width:0px; outline:none;"><i class="fas fa-caret-right"></i></button>
+                        <button id="btn_excel" style="height:5px; background:transparent; border-width:0px; outline:none;"><img src="~/dist/img/excel.png" /></button>
+                        <label>&nbsp;&nbsp;用電量/月管理</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="linChar" style="height:300px"></canvas>
+            </div>
+        </div>
+        <div class="card w-auto">
+            <div class="card-header">
+                <div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="myTable" class="table table-striped table-bordered table-hover text-center">
+                    <thead>
+                        <tr>
+                            <th>
+                                日期
+                            </th>
+                            <th>
+                                用電量
+                            </th>
+                            <th>
+                                <input type="checkbox" class="check" value="PowerC01" /><br />
+                                #1 KWH(時)
+                            </th>
+                            <th>
+                                <input type="checkbox" class="check" value="PowerC02" /><br />
+                                #2 KWH(時)
+                            </th>
+                            <th id="p03">
+                                <input type="checkbox" class="check" value="PowerC03" /><br />
+                                #3 KWH(時)
+                            </th>
+                            <th id="p04">
+                                <input type="checkbox" class="check" value="PowerC04" /><br />
+                                #4 KWH(時)
+                            </th>
+                            <th id="p05">
+                                <input type="checkbox" class="check" value="PowerC05" /><br />
+                                #5 KWH(時)
+                            </th>
+                            <th id="p06">
+                                <input type="checkbox" class="check" value="PowerC06" /><br />
+                                #6 KWH(時)
+                            </th>
+                            <th id="p07">
+                                <input type="checkbox" class="check" value="PowerC07" /><br />
+                                #7 KWH(時)
+                            </th>
+                            <th id="p08">
+                                <input type="checkbox" class="check" value="PowerC08" /><br />
+                                #8 KWH(時)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="/Power/PowerList?factory=@ViewBag.factory&day=@((item.DataDate).ToString("yyyy-MM-dd"))">@Html.DisplayFor(modelItem => item.DataDate)</a>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PowerCTotal)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PowerC01)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.PowerC02)
+                                </td>
+                                <td id="p03">
+                                    @Html.DisplayFor(modelItem => item.PowerC03)
+                                </td>
+                                <td id="p04">
+                                    @Html.DisplayFor(modelItem => item.PowerC04)
+                                </td>
+                                <td id="p05">
+                                    @Html.DisplayFor(modelItem => item.PowerC05)
+                                </td>
+                                <td id="p06">
+                                    @Html.DisplayFor(modelItem => item.PowerC06)
+                                </td>
+                                <td id="p07">
+                                    @Html.DisplayFor(modelItem => item.PowerC07)
+                                </td>
+                                <td id="p08">
+                                    @Html.DisplayFor(modelItem => item.PowerC08)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/chart.js/chart.min.js"></script>
+<script src="~/lib/chart.js/chartjs-plugin-annotation.js"></script>
+<script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+<link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+
+@section Scripts{
+    <script>
+        var factory = "@ViewBag.factory";
+        $(function () {
+            const fact = "@ViewBag.factory";
+            if (fact == "KY-T1HIST") {
+                $("[id='p07']").prop("hidden", true);
+                $("[id='p08']").prop("hidden", true);
+            }
+            else if (fact == "BL-T1HIST") {
+                $("[id='p05']").prop("hidden", true);
+                $("[id='p06']").prop("hidden", true);
+                $("[id='p07']").prop("hidden", true);
+                $("[id='p08']").prop("hidden", true);
+            }
+            else if (fact == "QX-T1HIST") {
+                $("[id='p04']").prop("hidden", true);
+                $("[id='p05']").prop("hidden", true);
+                $("[id='p06']").prop("hidden", true);
+                $("[id='p07']").prop("hidden", true);
+                $("[id='p08']").prop("hidden", true);
+            }
+            else if (fact == "ZB-T1HIST") {
+
+            }
+            else {
+                $("[id='p03']").prop("hidden", true);
+                $("[id='p04']").prop("hidden", true);
+                $("[id='p05']").prop("hidden", true);
+                $("[id='p06']").prop("hidden", true);
+                $("[id='p07']").prop("hidden", true);
+                $("[id='p08']").prop("hidden", true);
+            }
+            $("#myTable").DataTable({
+                "paging": false,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": false,
+                "info": true,
+                "autoWidth": true,
+                "responsive": false,
+                "fixedHeader": true,
+                "scrollCollapse": true,
+                "scrollY": "39vh",
+                "scrollX": true,
+                "columnDefs": [
+                    //给第一列指定宽度为表格整个宽度的7%
+                    { "width": "7%", "targets": 0 },
+                ]
+            })
+        })
+        var linChartCanvas = $('#linChar').get(0).getContext('2d');
+        var dates = @Html.Raw(Json.Serialize(Model.Select(x=>x.DataDate)));
+        console.log(dates);
+        // 迭代原始日期時間字串陣列
+        const timeStrings = dates.map(date => {
+            const d = new Date(date);
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${month}-${day}`;
+        });
+        var areaChartOptions = {
+            title: {
+                display: true,
+                text: `用電量`,
+                fontsize: 16
+            },
+            maintainAspectRatio: false,
+            responsive: true,
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    boxWidth: 30,
+                    boxHeight: 80,
+                    fontStyle: 'bold',
+                }
+            },
+            scales: {
+                xAxes: [{
+                    gridLines: {
+                        display: false
+                    },
+                }],
+                yAxes: [{
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left'
+                },
+                {
+                    id: 'B',
+                    type: 'linear',
+                    position: 'right',
+                    gridLines: {
+                        display: false,
+                    }
+                }]
+            },
+            tooltips: { //滑鼠移到點上顯示資訊
+                enabled: true,
+                intersect: false,
+                mode: 'index',
+            },
+        };
+        var areaChartData = {
+            labels: timeStrings,
+            datasets: [
+                {
+                    type: 'line',
+                    yAxisID: 'A',
+                    label: "用電量",
+                    backgroundColor: 'blue',
+                    borderColor: 'blue',
+                    fill: false,
+                    data: @Html.Raw(Json.Serialize(Model.Select(x=>x.PowerCTotal))),
+                },
+            ]
+        }
+
+        var linChartOptions = $.extend(true, {}, areaChartOptions)
+        var linchartData = $.extend(true, {}, areaChartData)
+
+        var linechart = new Chart(linChartCanvas, {
+            type: 'bar',
+            data: linchartData,
+            options: linChartOptions,
+        })
+
+        function LoadNewChart() {
+            var day = $("#day").val();
+            factory = "@ViewBag.factory";
+            document.location = `/Power/PowerMonList?factory=${factory}&day=${day}`;
+        };
+
+        $("#btn_excel").click(function () {
+            var val = [];
+            var day = $("#day").val();
+            var power = @Html.Raw(Json.Serialize(Model.Select(x=>x.PowerCTotal)));
+            var date = timeStrings;
+            var checkbox = $(".check").filter(':checked').map(function () {
+                return /* key: */$(this).val();
+            }).get();
+            var tt = { "power": power, "factory": factory, "checkBox": checkbox, "date": date, "day": day };
+            var jsonData = JSON.stringify(tt);
+            console.log(date)
+            $.ajax({
+                url: `@Url.Content("~/Power/CheckData")`,
+                type: "POST",
+                data: { "data": jsonData },
+                success: function (response) {
+                    if (response == "Ok") {
+                        document.location = `../Power/CreatEexcelMon?fck=` + encodeURIComponent(jsonData);
+                    } else {
+                        Swal.fire('無資料');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
+                }
+            });
+        });
+
+        $("input[class=check]").click(function () {
+            var val = $(this).val();
+            var name = "";
+            var color = "";
+            day = $("#day").val();
+            switch (val) {
+                case "PowerC01":
+                    name = "#1 KWH(時)";
+                    color = "rgba(255, 206, 86, 0.8)";
+                    break;
+                case "PowerC02":
+                    name = "#2 KWH(時)";
+                    color = "rgba(75, 192, 192, 0.8)";
+                    break;
+                case "PowerC03":
+                    name = "#3 KWH(時)";
+                    color = "rgb(240, 0, 120, 0.8)";
+                    break;
+                case "PowerC04":
+                    name = "#4 KWH(時)";
+                    color = "rgb(70, 163, 255, 0.8)";
+                    break;
+                case "PowerC05":
+                    name = "#5 KWH(時)";
+                    color = "rgb(238, 232, 170, 0.8)";
+                    break;
+                case "PowerC06":
+                    name = "#6 KWH(時)";
+                    color = "rgb(34, 139, 34, 0.8)";
+                    break;
+                case "PowerC07":
+                    name = "#7 KWH(時)";
+                    color = "rgb(178, 34, 34, 0.8)";
+                    break;
+                case "PowerC08":
+                    name = "#8 KWH(時)";
+                    color = "rgb(199, 21, 133, 0.8)";
+                    break;
+            }
+
+            var input = $(this).is(":checked");
+            $.ajax({
+                url: `@Url.Content("~/Power/LoadNewMonData")`,
+                mthod: 'POST',
+                data: { "p": val, "d": day, "f": factory },
+                dataType: "JSON",
+                success: function (res) {
+                    if (input) {
+                        linchartData.datasets.push({
+                            label: name,
+                            yAxisID: 'B',
+                            backgroundColor: color,
+                            borderColor: color,
+                            pointRadius: false,
+                            data: res
+                        });
+                        linechart.update();
+                    } else {
+                        let index = linchartData.datasets.findIndex(d => d.label === name);
+                        if (index !== -1) {
+                            linchartData.datasets.splice(index, 1);
+                        }
+                        linechart.update();
+                    }
+                }
+            })
+        });
+        //月份修改
+        $("#day").change(function () {
+            LoadNewChart()
+        })
+        //向前
+        $("#rightdate").click(function () {
+            var day = $("#day").val();
+            var ss = new Date();
+            var m = ss.getMonth() + 1;
+            if (m > 0) {
+                m = "0" + m;
+            }
+            var ym = ss.getFullYear() + "-" + m;
+            if (ym == day) {
+                console.log("相同");
+            } else {
+                month = day.split("-");
+                y = Number(month[0]);
+                M = Number(month[1]);
+                M = M + 1;
+                if (M > 12) {
+                    y = y + 1;
+                    M = 1;
+                    if (M <= 9) {
+                        M = "0" + M;
+                    }
+                } else {
+                    if (M <= 9) {
+                        M = "0" + M;
+                    }
+                }
+                ym = y + "-" + M;
+                $("#day").val(ym);
+                LoadNewChart()
+            }
+
+        })
+        //向後
+        $("#leftdate").click(function () {
+            var day = $("#day").val();
+            month = day.split("-");
+            console.log(day)
+            y = Number(month[0]);
+            M = Number(month[1]);
+            M = M - 1;
+            if (M == 0) {
+                y = y - 1;
+                M = 12;
+                if (M <= 9) {
+                    M = "0" + M;
+                }
+            } else {
+                if (M <= 9) {
+                    M = "0" + M;
+                }
+            }
+            var ym = y + "-" + M;
+
+            $("#day").val(ym);
+            LoadNewChart()
+        })
+
+    </script>
+}
+                 

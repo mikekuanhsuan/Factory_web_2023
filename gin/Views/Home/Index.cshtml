@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@*<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+</div>*@
+<style>
+    #clock {
+        font-family: 'Orbitron';
+        position: absolute;
+        top: 55%;
+        left: 60%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #16a085;
+        font-weight: bold;
+    }
+
+    .time {
+        letter-spacing: 0.05em;
+        font-size: 108px;
+        padding: 5px 0;
+    }
+
+    .date {
+        letter-spacing: 0.1em;
+        font-size: 32px;
+    }
+</style>
+
+<div id="clock">
+    <p class="date"></p>
+    <p class="time"></p>
+</div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+
+<script>
+    let week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    let timeId = setInterval(updateTime, 1000);
+    updateTime();
+    function updateTime() {
+        let cd = new Date();
+        $('.time').text(zeroPadding(cd.getHours(), 2) + ':' + zeroPadding(cd.getMinutes(), 2) + ':' + zeroPadding(cd.getSeconds(), 2));
+        $('.date').text(zeroPadding(cd.getFullYear(), 4) + '-' + zeroPadding(cd.getMonth() + 1, 2) + '-' + zeroPadding(cd.getDate(), 2) + ' ' + week[cd.getDay()]);
+    };
+    function zeroPadding(num, digit) {
+        var zero = '';
+        for (var i = 0; i < digit; i++) {
+            zero += '0';
+        }
+        return (zero + num).slice(-digit);
+    }
+</script>
